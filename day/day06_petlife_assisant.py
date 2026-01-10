@@ -37,7 +37,7 @@ class PetLifeAssistant(CodeAssistant):
 
         # 4. 自动持久化存储 (增加时间戳)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name = f"{self.log_prefix}_{timestamp}.json"
+        file_name = f"rst/{self.log_prefix}_{timestamp}.json"
 
         with open(file_name, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)

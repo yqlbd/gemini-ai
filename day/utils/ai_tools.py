@@ -58,7 +58,7 @@ class AIToolkit:
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
 
             # 2. 拼接完整文件名
-            filename = f"{prefix}_{timestamp}.json"
+            filename = f"rst/{prefix}_{timestamp}.json"
 
             # 3. 执行写入
             with open(filename, "w", encoding="utf-8") as f:

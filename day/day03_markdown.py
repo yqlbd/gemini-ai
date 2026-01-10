@@ -47,7 +47,7 @@ class ProjectAssistant:
         
         return response.text
 
-    def save_to_markdown(self, content, filename="architecture_design.md"):
+    def save_to_markdown(self, content, filename="rst/architecture_design.md"):
         """将结果保存为文件"""
         with open(filename, "w", encoding="utf-8") as f:
             f.write(content)

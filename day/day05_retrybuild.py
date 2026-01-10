@@ -63,7 +63,7 @@ def load_latest_json(prefix: str = "project_tasks_db"):
     自动寻找并读取最新的一份带有时间戳的 JSON 文件
     """
     # 获取所有匹配的文件列表
-    files = glob.glob(f"{prefix}_*.json")
+    files = glob.glob(f"rst/{prefix}_*.json")
     if not files:
         return None
 
