@@ -14,7 +14,7 @@ def ask_with_filter(question, category_filter):
     print(f"🔍 过滤器: category == '{category_filter}'")
 
     results = collection.query(
-        query_texts=[question],
+        query_texts=question,
         n_results=3,
         # 🔥 核心魔法：Where 子句
         # 告诉 Chroma 只在指定的 category 里找
@@ -30,7 +30,7 @@ def ask_with_filter(question, category_filter):
 
 # --- 测试 ---
 # 1. 问胖墩墩会不会写代码 (强制查日记)
-ask_with_filter("会写代码吗？", category_filter="diary")
+ask_with_filter(["会写代码吗？", "打了个盹吗？"], category_filter="diary")
 
 # 2. 问赵一清会不会写代码 (强制查技术文档)
-ask_with_filter("会写代码吗？", category_filter="tech")
+ask_with_filter(["会写代码吗？"], category_filter="tech")
