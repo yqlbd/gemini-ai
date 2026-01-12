@@ -15,7 +15,7 @@ def ask_with_filter(question, category_filter):
 
     results = collection.query(
         query_texts=[question],
-        n_results=2,
+        n_results=3,
         # 🔥 核心魔法：Where 子句
         # 告诉 Chroma 只在指定的 category 里找
         where={"category": category_filter},
