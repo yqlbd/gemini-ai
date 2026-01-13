@@ -33,56 +33,57 @@ def chat_with_tools(user_query):
             tools=tools_list,  # 🔥 关键：把工具包挂载上去
             temperature=0.0,  # 工具调用建议设为 0，让它逻辑更严谨
             system_instruction="你是一个助手。如果用户问天气或计算狗粮，**必须**调用工具获取数据，禁止直接回答或编造。",
+            automatic_function_calling={"disable": True},
         ),
     )
     # 检查gemini的反应
     # response.candidates[0].content.parts 里面可能有文本，也可能有 function_call
     parts = response.candidates[0].content.parts
     # --- 第 2 轮交互：处理工具调用 (如果有) ---
-    # for part in parts:
-    #     # 如果 Gemini 发出了“函数调用请求”
-    #     if part.function_call:
-    #         fn_name = part.function_call.name
-    #         fn_args = part.function_call.args
+    for part in parts:
+        # 如果 Gemini 发出了“函数调用请求”
+        if part.function_call:
+            fn_name = part.function_call.name
+            fn_args = part.function_call.args
 
-    #         print(f"🤖 Gemini 请求调用工具: 【{fn_name}】 参数: {fn_args}")
+            print(f"🤖 Gemini 请求调用工具: 【{fn_name}】 参数: {fn_args}")
 
-    #         # === 这里就是“Python 老板”介入的地方 ===
-    #         # 我们手动执行对应的函数
-    #         tool_result = None
-    #         if fn_name == "get_current_weather":
-    #             tool_result = get_current_weather(city=fn_args["city"])
-    #         elif fn_name == "calculate_dog_food":
-    #             # 注意：Gemini 有时传回来的是浮点数，稍微做下类型转换
-    #             tool_result = calculate_dog_food(
-    #                 weight_kg=fn_args.get("weight_kg"),
-    #                 is_active=fn_args.get("is_active", True),
-    #             )
+            # === 这里就是“Python 老板”介入的地方 ===
+            # 我们手动执行对应的函数
+            tool_result = None
+            if fn_name == "get_current_weather":
+                tool_result = get_current_weather(city=fn_args["city"])
+            elif fn_name == "calculate_dog_food":
+                # 注意：Gemini 有时传回来的是浮点数，稍微做下类型转换
+                tool_result = calculate_dog_food(
+                    weight_kg=fn_args.get("weight_kg"),
+                    is_active=fn_args.get("is_active", True),
+                )
 
-    #         print(f"📦 工具运行结果: {tool_result}")
+            print(f"📦 工具运行结果: {tool_result}")
 
-    #         # === 把结果“喂”回给 Gemini ===
-    #         # 我们需要构造一个特殊的响应，告诉 AI：“你刚才要跑的函数，结果在这里”
-    #         # 这里的格式是固定的，必须包含 id, name, response
-    #         function_response_part = types.Part.from_function_response(
-    #             name=fn_name, response={"result": tool_result}
-    #         )
+            # === 把结果“喂”回给 Gemini ===
+            # 我们需要构造一个特殊的响应，告诉 AI：“你刚才要跑的函数，结果在这里”
+            # 这里的格式是固定的，必须包含 id, name, response
+            function_response_part = types.Part.from_function_response(
+                name=fn_name, response={"result": tool_result}
+            )
 
-    #         # 把“Gemini 的请求”和“我们的运行结果”都塞进历史记录
-    #         # 这样 AI 才知道前因后果
-    #         chat_history.append(response.candidates[0].content)  # 存入它刚才的请求
-    #         chat_history.append(
-    #             types.Content(role="tool", parts=[function_response_part])
-    #         )
+            # 把“Gemini 的请求”和“我们的运行结果”都塞进历史记录
+            # 这样 AI 才知道前因后果
+            chat_history.append(response.candidates[0].content)  # 存入它刚才的请求
+            chat_history.append(
+                types.Content(role="tool", parts=[function_response_part])
+            )
 
-    #         # --- 第 3 轮交互：拿到结果 -> Gemini 生成最终人话 ---
-    #         final_response = client.models.generate_content(
-    #             model=model_id,
-    #             contents=chat_history,
-    #             # 这轮不需要tools了，或者带着也行，通常生成最终回答不需要再调用工具
-    #         )
-    #         print(f"🤖 Gemini 最终回答: {final_response.text}")
-    #         return final_response.text
+            # --- 第 3 轮交互：拿到结果 -> Gemini 生成最终人话 ---
+            final_response = client.models.generate_content(
+                model=model_id,
+                contents=chat_history,
+                # 这轮不需要tools了，或者带着也行，通常生成最终回答不需要再调用工具
+            )
+            print(f"🤖 Gemini 最终回答: {final_response.text}")
+            return final_response.text
 
     # 如果没有调用工具（比如用户只是问好），直接打印文本
     if response.text:
@@ -92,7 +93,7 @@ def chat_with_tools(user_query):
 
 if __name__ == "__main__":
     # 测试 1: 简单的天气查询
-    chat_with_tools("常州天气如何")
+    chat_with_tools("常州天气如何？")
 
     # print("-" * 50)
 
