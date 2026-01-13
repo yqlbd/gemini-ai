@@ -125,3 +125,37 @@ class AIToolkit:
             table.add_section()
 
         console.print(table)
+
+
+def get_current_weather(city: str = "上海") -> str:
+    """
+    查询指定城市的实时天气。
+    参数:
+        city: 城市名称，例如 "上海", "北京"
+    """
+    print(f"\n🔍 [Tool Running] 正在查询 {city} 的天气...")
+    mock_data = {
+        "上海": "晴天, 25°C, 微风",
+        "北京": "多云, 18°C, 有雾霾",
+        "常州": "小雨, 22°C, 适合睡觉",
+    }
+    return mock_data.get(city, "未知天气, 建议看天气预报")
+
+
+def calculate_dog_food(weight_kg: float = 7.5, is_active: bool = True) -> int:
+    """
+    根据体重计算狗狗每天需要的狗粮克数。
+    参数:
+        weight_kg: 狗狗体重(kg)
+        is_active: 是否活泼好动 (True/False)
+    """
+    print(f"\n🧮 [Tool Running] 正在计算狗粮: {weight_kg}kg, 活泼={is_active}...")
+
+    base_amount = weight_kg * 30  # 基础代谢：每公斤30克
+    if is_active:
+        base_amount *= 1.2  # 活泼狗多吃 20%
+
+    return int(base_amount)
+
+
+tools_list = [get_current_weather, calculate_dog_food]
