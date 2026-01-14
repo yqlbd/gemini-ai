@@ -21,11 +21,10 @@ tool_list = [get_weather_info]
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 FUNCTION_MAP = {"get_weather_info": get_weather_info}
 
-chat_history = []
-
 
 # 调用
 async def get_gemini_response(question: str) -> None:
+    chat_history = []
     if question:
         chat_history.append(
             types.Content(role="user", parts=[types.Part.from_text(text=question)])
