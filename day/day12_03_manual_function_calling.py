@@ -10,16 +10,20 @@ import asyncio
 
 # 自定义的api，模拟获取天气数据
 def get_weather_info(city: str = "上海") -> str:
-    print(f"======手搓api接受到调用，参数是{city}")
     mock_data = {"上海": "18度，晴转多云", "北京": "20度，晴", "广州": "16度，阴转小雨"}
     return mock_data.get(city, "未找到当地天气，请联系气象部门")
 
 
+def get_name_info(role: str = "小狗") -> str:
+    mock_data = {"妈妈": "霍妮媛", "小狗": "胖墩墩", "我": "赵一清"}
+    return mock_data.get(role, "未找到对应信息")
+
+
 model_id = "gemini-2.0-flash-exp"
 
-tool_list = [get_weather_info]
+tool_list = [get_weather_info, get_name_info]
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-FUNCTION_MAP = {"get_weather_info": get_weather_info}
+FUNCTION_MAP = {"get_weather_info": get_weather_info, "get_name_info": get_name_info}
 
 
 # 调用
@@ -34,7 +38,7 @@ async def get_gemini_response(question: str) -> None:
             model=model_id,
             contents=chat_history,
             config=types.GenerateContentConfig(
-                # system_instruction="",
+                system_instruction="你是个AI助理，如果询问名字，请调用fucntion_calling",
                 temperature=0.3,
                 tools=tool_list,
                 # 增加这个配置，用来手动调用
@@ -93,6 +97,9 @@ async def main():
 
     question2 = "广州天气如何？"
     await get_gemini_response(question=question2)
+
+    question3 = "妈妈叫啥名字？"
+    await get_gemini_response(question=question3)
 
 
 if __name__ == "__main__":
