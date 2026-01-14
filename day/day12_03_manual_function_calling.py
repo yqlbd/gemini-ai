@@ -76,10 +76,13 @@ async def get_gemini_response(question: str) -> None:
                 )
 
                 # 更新历史并发送
+                # 拼装model的functioncall信息
                 chat_history.append(candidates.content)
+                # 拼装tool返回的信息
                 chat_history.append(
                     types.Content(role="tool", parts=[function_response_part])
                 )
+                # 最后的数据示例：[{'role':'user',[{'text':'广州天气如何',...}]},{'role':''model',[{'funtion call':...}]},{'role':'tool',...}]
                 final_response = await client.aio.models.generate_content(
                     model=model_id, contents=chat_history
                 )
