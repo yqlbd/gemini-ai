@@ -19,7 +19,7 @@ def get_name_info(role: str = "小狗") -> str:
     return mock_data.get(role, "未找到对应信息")
 
 
-model_id = "gemini-2.0-flash-exp"
+model_id = "gemini-2.0-flash"
 
 tool_list = [get_weather_info, get_name_info]
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
@@ -56,7 +56,7 @@ async def get_gemini_response(question: str) -> None:
             if part.function_call:
                 fn_name = part.function_call.name
                 fn_args = part.function_call.args
-                print(f"🤖 [动态分发] 收到指令: {fn_name} | 参数: {fn_args}")
+                print(f"🤖 [动态分发] 调用方法: {fn_name} | 参数: {fn_args}")
                 if fn_name in FUNCTION_MAP:
                     target_function = FUNCTION_MAP[fn_name]
                     try:
@@ -84,7 +84,9 @@ async def get_gemini_response(question: str) -> None:
                 )
                 # 最后的数据示例：[{'role':'user',[{'text':'广州天气如何',...}]},{'role':''model',[{'funtion call':...}]},{'role':'tool',...}]
                 final_response = await client.aio.models.generate_content(
-                    model=model_id, contents=chat_history
+                    model=model_id,
+                    contents=chat_history,
+                    config=types.GenerateContentConfig(temperature=2.0),
                 )
                 print(f"🤖的回复: {final_response.text}")
                 return
@@ -101,7 +103,7 @@ async def main():
     question2 = "广州天气如何？"
     await get_gemini_response(question=question2)
 
-    question3 = "妈妈叫啥名字？"
+    question3 = "小狗叫啥名字？"
     await get_gemini_response(question=question3)
 
 

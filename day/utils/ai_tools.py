@@ -133,7 +133,7 @@ def get_current_weather(city: str = "上海") -> str:
     参数:
         city: 城市名称，例如 "上海", "北京"
     """
-    print(f"\n🔍 [Tool Running] 正在查询 {city} 的天气...")
+    print(f"🔍 [Tool Running] 正在查询 {city} 的天气...")
     mock_data = {
         "上海": "晴天, 25°C, 微风",
         "北京": "多云, 18°C, 有雾霾",
@@ -149,7 +149,8 @@ def calculate_dog_food(weight_kg: float = 7.5, is_active: bool = True) -> int:
         weight_kg: 狗狗体重(kg)
         is_active: 是否活泼好动 (True/False)
     """
-    print(f"\n🧮 [Tool Running] 正在计算狗粮: {weight_kg}kg, 活泼={is_active}...")
+    status = "活泼" if is_active else "沉稳"
+    print(f"🧮 [Tool Running] 正在计算狗粮: {weight_kg}kg, {status}")
 
     base_amount = weight_kg * 30  # 基础代谢：每公斤30克
     if is_active:
