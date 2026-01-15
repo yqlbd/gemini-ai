@@ -42,7 +42,7 @@ class Agent:
         """
         Agent 的主循环：思考 -> 决策 -> 执行 -> 再思考
         """
-        print(f"\n🟢 [用户]: {user_query}")
+        print(f"🟢 [用户]: {user_query}")
 
         # 1. 把用户的问题加入记忆
         self.chat_history.append(
@@ -112,13 +112,13 @@ class Agent:
                 fn_name = part.function_call.name
                 fn_args = part.function_call.args
 
-                print(f"🔨 [执行方法] {fn_name} | 参数: {fn_args}")
+                print(f"🔨 [执行方法]: {fn_name} | 参数: {fn_args}")
 
                 # 动态分发
                 if fn_name in FUNCTION_MAP:
                     try:
                         result = FUNCTION_MAP[fn_name](**fn_args)
-                        print(f"📦 [方法结果] {result}")
+                        print(f"📦 [方法结果]:{result}")
                     except Exception as e:
                         result = f"Error: {str(e)}"
                 else:
