@@ -159,4 +159,58 @@ def calculate_dog_food(weight_kg: float = 7.5, is_active: bool = True) -> int:
     return int(base_amount)
 
 
-tools_list = [get_current_weather, calculate_dog_food]
+import chromadb
+from chromadb.utils import embedding_functions
+import os
+
+# 1. 配置 ChromaDB 路径 (确保指向你之前生成的数据库文件夹)
+DB_PATH = "rst/chroma_db"
+COLLECTION_NAME = "categorized_memory"
+
+# 初始化 Embedding 函数 (和 Day 10 一样，用本地模型)
+# 如果你之前用的是其他模型，请保持一致
+embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="paraphrase-multilingual-MiniLM-L12-v2"
+)
+
+
+# 2. 定义 RAG 搜索工具
+def search_knowledge_base(query: str):
+    """
+    搜索本地知识库(日记、文档)，获取与问题相关的背景信息。
+    当用户问到关于“胖墩墩”、“个人经历”、“过往日记”或“技术笔记”时，必须调用此工具。
+
+    参数:
+        query: 搜索关键词，例如 "胖墩墩生病" 或 "RAG学习笔记"
+    """
+    print(f"\n📚 [RAG Tool] 正在搜索知识库: {query}...")
+
+    try:
+        client = chromadb.PersistentClient(path=DB_PATH)
+        collection = client.get_collection(
+            name=COLLECTION_NAME, embedding_function=embedding_fn
+        )
+
+        # 搜索 Top 3 相关片段
+        results = collection.query(query_texts=[query], n_results=3)
+
+        # 格式化结果
+        documents = results["documents"][0]
+        metadatas = results["metadatas"][0]
+
+        context_text = ""
+        for i, doc in enumerate(documents):
+            source = metadatas[i].get("source", "未知来源")
+            context_text += f"\n[来源: {source}] 内容: {doc}\n"
+
+        if not context_text:
+            return "知识库中未找到相关信息。"
+
+        return context_text
+
+    except Exception as e:
+        print(f"❌ RAG 搜索出错: {e}")
+        return f"搜索失败: {str(e)}"
+
+
+tools_list = [get_current_weather, calculate_dog_food, search_knowledge_base]
