@@ -4,6 +4,7 @@ import json
 import uuid
 
 # --- 配置区 ---
+# 关键修复：必须加上 :否则会去找默认的 80 端口导致 404
 BASE_URL = "http://localhost/v1"
 API_KEY = "app-T2puz82drGLj8AcJqLP0Z8d1"
 
@@ -14,7 +15,7 @@ st.caption("Powered by Dify + Gemini")
 
 # --- 初始化会话状态 ---
 if "session_id" not in st.session_state:
-    st.session_state.session_id = str(uuid.uuid4())  # 生成一个唯一ID，让Dify记住上下文
+    st.session_state.session_id = ""
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -45,7 +46,7 @@ if prompt := st.chat_input("问问关于胖墩墩的事..."):
                 "inputs": {},
                 "query": prompt,
                 "response_mode": "blocking",
-                "conversation_id": st.session_state.session_id,  # 传入会话ID，实现多轮对话
+                "conversation_id": st.session_state.session_id,
                 "user": "yiqing_streamlit_user",
             }
 
@@ -58,6 +59,10 @@ if prompt := st.chat_input("问问关于胖墩墩的事..."):
             # 解析结果
             result = response.json()
             answer = result.get("answer", "我好像卡住了...")
+
+            # ✨ 新增：如果是第一轮对话，把 Dify 返回的 conversation_id 存起来！
+            if not st.session_state.session_id:
+                st.session_state.session_id = result.get("conversation_id")
 
             # 显示回答
             message_placeholder.markdown(answer)
